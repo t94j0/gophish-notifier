@@ -72,10 +72,21 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(sender)
-	if err := sender.SendEmail(); err != nil {
-		log.Error(err)
-		return
+
+	profiles := viper.GetStringSlice("profiles")
+	for _, profile := range profiles {
+		if profile == "email" {
+			if err := sender.SendEmail(); err != nil {
+				log.Error(err)
+				return
+			}
+		}
+		if profile == "slack" {
+			if err := sender.SendSlack(); err != nil {
+				log.Error(err)
+				return
+			}
+		}
 	}
 
 	w.WriteHeader(http.StatusNoContent)
