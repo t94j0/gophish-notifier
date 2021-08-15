@@ -1,6 +1,6 @@
 # PhishBot
 
-GoPhish Slack bot using webhooks
+GoPhish notifier bot using webhooks
 
 ## Installation
 
@@ -17,12 +17,6 @@ go build -o phishbot
 The configuration path is `/etc/gophish_slack/config.yml`. Below is an example config:
 
 ```yaml
-# Username displayed in Slack
-bot_username: PhishBot
-# Channel to post in
-bot_channel: '#testing2'
-# Bot profile picture
-bot_emoji: ':blowfish:'
 # Host to listen on. If GoPhish is running on the same host, you can set this to 127.0.0.1
 listen_host: 0.0.0.0
 # Port to listen on
@@ -41,6 +35,12 @@ profiles:
 # Slack Profile
 # Webhook address. Typically starts with https://hooks.slack.com/services/...
 slack_webhook: '<Your Slack Webhook>'
+# Username displayed in Slack
+bot_username: PhishBot
+# Channel to post in
+bot_channel: '#testing2'
+# Bot profile picture
+bot_emoji: ':blowfish:'
 
 # Email Profile
 # Email to send from
