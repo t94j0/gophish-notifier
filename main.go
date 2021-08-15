@@ -4,7 +4,6 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -59,8 +58,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response WebhookResponse
-	if err := json.Unmarshal(body, &response); err != nil {
+	response, err := NewWebhookResponse(body)
+	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

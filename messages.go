@@ -40,6 +40,14 @@ type WebhookResponse struct {
 	Email      string `json:"email"`
 }
 
+func NewWebhookResponse(body []byte) (WebhookResponse, error) {
+	var response WebhookResponse
+	if err := json.Unmarshal(body, &response); err != nil {
+		return WebhookResponse{}, err
+	}
+	return response, nil
+}
+
 type EventDetails struct {
 	Payload url.Values        `json:"payload"`
 	Browser map[string]string `json:"browser"`
