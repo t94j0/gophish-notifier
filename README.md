@@ -1,6 +1,10 @@
 # GoPhish Notifier
 
-GoPhish notifier bot using webhooks
+GoPhish Notifier notifies red team members when their GoPhish campaign status
+has been updated. It supports both Slack and Email notification profiles by
+default, but it's very extensible so new notification profiles can be added
+easily.
+
 
 ## Installation
 
@@ -33,26 +37,29 @@ profiles:
   - email
 
 # Slack Profile
-# Webhook address. Typically starts with https://hooks.slack.com/services/...
-slack_webhook: '<Your Slack Webhook>'
-# Username displayed in Slack
-bot_username: PhishBot
-# Channel to post in
-bot_channel: '#testing2'
-# Bot profile picture
-bot_emoji: ':blowfish:'
+slack:
+  # Webhook address. Typically starts with https://hooks.slack.com/services/...
+  webhook: '<Your Slack Webhook>'
+  # Username displayed in Slack
+  username: PhishBot
+  # Channel to post in
+  channel: '#testing2'
+  # Bot profile picture
+  emoji: ':blowfish:'
 
 # Email Profile
 # Email to send from
-email_sender: test@test.com
-# Password of sender email. Uses plain SMTP authentication
-email_sender_password: password123
-# Recipient of notifications
-email_recipient: mail@example.com
-# Email host to send to
-email_host: smtp.gmail.com
-# Email host address
-email_host_addr: smtp.gmail.com:587
+email:
+  sender: test@test.com
+  # Password of sender email. Uses plain SMTP authentication
+  sender_password: password123
+  # Recipient of notifications
+  recipient: mail@example.com
+  # Email host to send to
+  host: smtp.gmail.com
+  # Email host address
+  host_addr: smtp.gmail.com:587
+
 # You can also supply an email template for each notification
 email_submitted_credentials_template: |
   Someone submitted credentials!

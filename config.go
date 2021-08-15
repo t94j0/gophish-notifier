@@ -38,8 +38,8 @@ func init() {
 
 func setDefaults() {
 	viper.SetDefault("log_level", "info")
-	viper.SetDefault("bot_username", "PhishBot")
-	viper.SetDefault("bot_emoji", ":blowfish:")
+	viper.SetDefault("slack.bot_username", "PhishBot")
+	viper.SetDefault("slack.bot_emoji", ":blowfish:")
 	viper.SetDefault("listen_host", "0.0.0.0")
 	viper.SetDefault("listen_port", "9999")
 	viper.SetDefault("webhook_path", "/webhook")
@@ -66,23 +66,23 @@ func validateConfig() {
 		}
 	}
 
-	globalConfigs := []string{"bot_channel", "slack_webhook", "secret", "profiles"}
+	globalConfigs := []string{"secret", "profiles"}
 	checkKeysExist(globalConfigs...)
 
 	profiles := viper.GetStringSlice("profiles")
 	for _, profile := range profiles {
 		if profile == "slack" {
-			slackConfigs := []string{"slack_webhook"}
+			slackConfigs := []string{"slack.webhook", "slack.bot_channel"}
 			checkKeysExist(slackConfigs...)
-			log.Infof("Using Slack sending profile. Will send messages to %s", viper.GetString("bot_channel"))
+			log.Infof("Using Slack sending profile. Will send messages to %s", viper.GetString("slack.bot_channel"))
 			continue
 		}
 		if profile == "email" {
-			emailConfigs := []string{"email_sender", "email_sender_password", "email_recipient", "email_host", "email_host_addr"}
+			emailConfigs := []string{"email.sender", "email.sender_password", "email.recipient", "email.host", "email.host_addr"}
 			checkKeysExist(emailConfigs...)
 			log.Infof("Using Email sending profile. Will send emails from %s to %s",
-				viper.GetString("email_sender"),
-				viper.GetString("email_recipient"))
+				viper.GetString("email.sender"),
+				viper.GetString("email.recipient"))
 			continue
 		}
 		log.Fatalf("Profile \"%s\" does not exist", profile)
