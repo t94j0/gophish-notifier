@@ -36,3 +36,7 @@ secret: secretpassword123
 # Log level. Log levels are panic, fatal, error, warning, info, debug, trace.
 log_level: debug
 ```
+
+Project inspired by [gophish-notifications]
+
+[gophish-notifications]: https://github.com/dunderhay/gophish-notifications
