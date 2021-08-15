@@ -1,4 +1,4 @@
-module github.com/t94j0/gophish-webhook-slack
+module github.com/t94j0/gophish-notifier
 
 go 1.12
 
