@@ -1,4 +1,4 @@
-# PhishBot
+# GoPhish Notifier
 
 GoPhish notifier bot using webhooks
 
