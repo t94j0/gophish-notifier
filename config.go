@@ -25,7 +25,7 @@ User Agent - {{ .UserAgent }}`
 func init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/etc/gophish_slack")
+	viper.AddConfigPath("/etc/gophish_notifier")
 	viper.AddConfigPath(".")
 	setDefaults()
 	if err := viper.ReadInConfig(); err != nil {

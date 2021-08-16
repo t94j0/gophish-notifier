@@ -18,7 +18,7 @@ go build -o phishbot
 
 ## Configuration
 
-The configuration path is `/etc/gophish_slack/config.yml`. Below is an example config:
+The configuration path is `/etc/gophish_notifier/config.yml`. Below is an example config:
 
 ```yaml
 # Host to listen on. If GoPhish is running on the same host, you can set this to 127.0.0.1
