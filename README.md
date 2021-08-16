@@ -31,6 +31,8 @@ webhook_path: /webhook
 secret: secretpassword123
 # Log level. Log levels are panic, fatal, error, warning, info, debug, trace.
 log_level: debug
+# (Optional) Base URL of GoPhish instance so that Slack notifications can link to campaign
+base_url: https://10.0.0.15:3333
 # Enables sending profiles. Options are `slack` and `email`. Make sure to configure the required parameters for each profile
 profiles:
   - slack
@@ -46,6 +48,8 @@ slack:
   channel: '#testing2'
   # Bot profile picture
   emoji: ':blowfish:'
+  # (Optional) Disable email, username, and credentials from being sent to Slack
+  disable_credentials: true
 
 # Email Profile
 # Email to send from

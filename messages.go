@@ -73,12 +73,13 @@ func (e EventDetails) Address() string {
 }
 
 type SubmittedDetails struct {
-	ID        string
-	Email     string
-	Address   string
-	UserAgent string
-	Username  string
-	Password  string
+	CampaignID uint
+	ID         string
+	Email      string
+	Address    string
+	UserAgent  string
+	Username   string
+	Password   string
 }
 
 func NewSubmittedDetails(response WebhookResponse, detailsRaw []byte) (SubmittedDetails, error) {
@@ -87,12 +88,13 @@ func NewSubmittedDetails(response WebhookResponse, detailsRaw []byte) (Submitted
 		return SubmittedDetails{}, err
 	}
 	submittedDetails := SubmittedDetails{
-		ID:        details.ID(),
-		Address:   details.Address(),
-		UserAgent: details.UserAgent(),
-		Email:     response.Email,
-		Username:  details.Payload.Get("username"),
-		Password:  details.Payload.Get("password"),
+		CampaignID: response.CampaignID,
+		ID:         details.ID(),
+		Address:    details.Address(),
+		UserAgent:  details.UserAgent(),
+		Email:      response.Email,
+		Username:   details.Payload.Get("username"),
+		Password:   details.Payload.Get("password"),
 	}
 	return submittedDetails, nil
 }
@@ -101,11 +103,14 @@ func (w SubmittedDetails) SendSlack() error {
 	red := "#f05b4f"
 	attachment := slack.Attachment{Title: &SubmittedData, Color: &red}
 	attachment.AddField(slack.Field{Title: "ID", Value: w.ID})
-	attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
-	attachment.AddField(slack.Field{Title: "Address", Value: w.Address})
+	attachment.AddField(slack.Field{Title: "Address", Value: slackFormatIP(w.Address)})
 	attachment.AddField(slack.Field{Title: "User Agent", Value: w.UserAgent})
-	attachment.AddField(slack.Field{Title: "Username", Value: w.Username})
-	attachment.AddField(slack.Field{Title: "Password", Value: w.Password})
+	if !viper.GetBool("slack.disable_credentials") {
+		attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
+		attachment.AddField(slack.Field{Title: "Username", Value: w.Username})
+		attachment.AddField(slack.Field{Title: "Password", Value: w.Password})
+	}
+	attachment = addCampaignButton(attachment, w.CampaignID)
 	return sendSlackAttachment(attachment)
 }
 
@@ -119,10 +124,11 @@ func (w SubmittedDetails) SendEmail() error {
 }
 
 type ClickDetails struct {
-	ID        string
-	Email     string
-	Address   string
-	UserAgent string
+	CampaignID uint
+	ID         string
+	Email      string
+	Address    string
+	UserAgent  string
 }
 
 func NewClickDetails(response WebhookResponse, detailsRaw []byte) (ClickDetails, error) {
@@ -131,10 +137,11 @@ func NewClickDetails(response WebhookResponse, detailsRaw []byte) (ClickDetails,
 		return ClickDetails{}, err
 	}
 	clickDetails := ClickDetails{
-		ID:        details.ID(),
-		Address:   details.Address(),
-		Email:     response.Email,
-		UserAgent: details.UserAgent(),
+		CampaignID: response.CampaignID,
+		ID:         details.ID(),
+		Address:    details.Address(),
+		Email:      response.Email,
+		UserAgent:  details.UserAgent(),
 	}
 	return clickDetails, nil
 }
@@ -143,9 +150,12 @@ func (w ClickDetails) SendSlack() error {
 	orange := "#ffa500"
 	attachment := slack.Attachment{Title: &ClickedLink, Color: &orange}
 	attachment.AddField(slack.Field{Title: "ID", Value: w.ID})
-	attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
-	attachment.AddField(slack.Field{Title: "Address", Value: w.Address})
+	attachment.AddField(slack.Field{Title: "Address", Value: slackFormatIP(w.Address)})
 	attachment.AddField(slack.Field{Title: "User Agent", Value: w.UserAgent})
+	if !viper.GetBool("slack.disable_credentials") {
+		attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
+	}
+	attachment = addCampaignButton(attachment, w.CampaignID)
 	return sendSlackAttachment(attachment)
 }
 
@@ -171,10 +181,11 @@ func getEmailBody(templateValue string, obj interface{}) (string, error) {
 }
 
 type OpenedDetails struct {
-	ID        string
-	Email     string
-	Address   string
-	UserAgent string
+	CampaignID uint
+	ID         string
+	Email      string
+	Address    string
+	UserAgent  string
 }
 
 func NewOpenedDetails(response WebhookResponse, detailsRaw []byte) (OpenedDetails, error) {
@@ -183,10 +194,11 @@ func NewOpenedDetails(response WebhookResponse, detailsRaw []byte) (OpenedDetail
 		return OpenedDetails{}, err
 	}
 	clickDetails := OpenedDetails{
-		ID:        details.ID(),
-		Email:     response.Email,
-		Address:   details.Address(),
-		UserAgent: details.UserAgent(),
+		CampaignID: response.CampaignID,
+		ID:         details.ID(),
+		Email:      response.Email,
+		Address:    details.Address(),
+		UserAgent:  details.UserAgent(),
 	}
 	return clickDetails, nil
 }
@@ -195,9 +207,12 @@ func (w OpenedDetails) SendSlack() error {
 	yellow := "#ffff00"
 	attachment := slack.Attachment{Title: &EmailOpened, Color: &yellow}
 	attachment.AddField(slack.Field{Title: "ID", Value: w.ID})
-	attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
-	attachment.AddField(slack.Field{Title: "Address", Value: w.Address})
+	attachment.AddField(slack.Field{Title: "Address", Value: slackFormatIP(w.Address)})
 	attachment.AddField(slack.Field{Title: "User Agent", Value: w.UserAgent})
+	if !viper.GetBool("slack.disable_credentials") {
+		attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
+	}
+	attachment = addCampaignButton(attachment, w.CampaignID)
 	return sendSlackAttachment(attachment)
 }
 
