@@ -19,13 +19,6 @@ var (
 	errInvalidSignature = errors.New("invalid signature")
 )
 
-// Can't be const because need reference to variable for Slack webhook title
-var (
-	ClickedLink   string = "Clicked Link"
-	SubmittedData string = "Submitted Data"
-	EmailOpened   string = "Email Opened"
-)
-
 func validateSignature(body []byte, r *http.Request) error {
 	secret := viper.GetString("secret")
 	mac := hmac.New(sha256.New, []byte(secret))
@@ -62,6 +55,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if response.Success {
 		return
 	}
 

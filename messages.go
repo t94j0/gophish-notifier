@@ -11,6 +11,13 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Can't be const because need reference to variable for Slack webhook title
+var (
+	ClickedLink   string = "Clicked Link"
+	SubmittedData string = "Submitted Data"
+	EmailOpened   string = "Email Opened"
+)
+
 type Sender interface {
 	SendSlack() error
 	SendEmail() error
@@ -33,7 +40,7 @@ func senderDispatch(status string, webhookResponse WebhookResponse, response []b
 // More information about events can be found here:
 // https://github.com/gophish/gophish/blob/db63ee978dcd678caee0db71e5e1b91f9f293880/models/result.go#L50
 type WebhookResponse struct {
-	Success    string `json:"success"`
+	Success    bool   `json:"success"`
 	CampaignID uint   `json:"campaign_id"`
 	Message    string `json:"message"`
 	Details    string `json:"details"`
