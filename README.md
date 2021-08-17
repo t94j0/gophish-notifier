@@ -16,6 +16,10 @@ cd gophish-webhook-slack
 go build -o phishbot
 ```
 
+### Ansible
+
+See (ansible-gophish-notifier)[https://github.com/t94j0/ansible-gophish-notifier]
+
 ## Configuration
 
 The configuration path is `/etc/gophish_notifier/config.yml`. Below is an example config:
