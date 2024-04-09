@@ -46,8 +46,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	log.Debug(string(body))
 
 	if err := validateSignature(body, r); err != nil {
-		log.Error(errInvalidSignature)
-		http.Error(w, errInvalidSignature.Error(), http.StatusBadRequest)
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
