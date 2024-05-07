@@ -83,6 +83,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if profile == "ghostwriter" {
+			if err := sender.SendGraphql(); err != nil {
+				log.Error(err)
+				return
+			}
+		}
 	}
 
 	w.WriteHeader(http.StatusNoContent)

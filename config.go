@@ -22,26 +22,19 @@ Email Address - {{ .Email }}
 IP Address - {{ .Address }}
 User Agent - {{ .UserAgent }}`
 
-var defaultgraphqlTemplate = `mutation InsertCobaltSyncLog (
-	$oplog: bigint!, $startDate: timestamptz, $endDate: timestamptz, $sourceIp: String, $destIp: String,
-	$tool: String, $userContext: String, $command: String, $description: String,
-	$output: String, $comments: String, $operatorName: String, $entry_identifier: String!, $extraFields: jsonb!
+var defaultgraphqlTemplate = `mutation InsertGophishLog (
+	$oplog: bigint!, $sourceIp: String, $tool: String,
+	$userContext: String, $description: String, $output: String,
+	$comments: String
 ) {
 	insert_oplogEntry(objects: {
 		oplog: $oplog,
-		startDate: $startDate,
-		endDate: $endDate,
 		sourceIp: $sourceIp,
-		destIp: $destIp,
 		tool: $tool,
 		userContext: $userContext,
-		command: $command,
 		description: $description,
 		output: $output,
-		comments: $comments,
-		operatorName: $operatorName,
-		entryIdentifier: $entry_identifier,
-		extraFields: $extraFields
+		comments: $comments
 	}) {
 		returning { id }
 	}
@@ -116,7 +109,7 @@ func validateConfig() {
 		if profile == "ghostwriter" {
 			ghostwriterConfigs := []string{"ghostwriter.graphql_endpoint", "ghostwriter.api_key"}
 			checkKeysExist(ghostwriterConfigs...)
-			log.Infof("Using Ghostwriter sending profile. Will send messages to %s", viper.GetString("ghostwriter.url"))
+			log.Infof("Using Ghostwriter sending profile. Will send messages to %s", viper.GetString("ghostwriter.graphql_endpoint"))
 			continue
 		}
 		log.Fatalf("Profile \"%s\" does not exist", profile)

@@ -57,7 +57,7 @@ func sendEmail(subject, body string) error {
 }
 
 func sendGraphql(data ghostwriter_oplog_entry) error {
-	url := viper.GetString("ghostwriter.url")
+	url := viper.GetString("ghostwriter.graphql_endpoint")
 	query := viper.GetString("graphql_default_query")
 	oplog_id := viper.GetInt("ghostwriter.oplog_id")
 	client := graphql.NewClient(url)
