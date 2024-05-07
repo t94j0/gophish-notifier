@@ -22,6 +22,31 @@ Email Address - {{ .Email }}
 IP Address - {{ .Address }}
 User Agent - {{ .UserAgent }}`
 
+var defaultgraphqlTemplate = `mutation InsertCobaltSyncLog (
+	$oplog: bigint!, $startDate: timestamptz, $endDate: timestamptz, $sourceIp: String, $destIp: String,
+	$tool: String, $userContext: String, $command: String, $description: String,
+	$output: String, $comments: String, $operatorName: String, $entry_identifier: String!, $extraFields: jsonb!
+) {
+	insert_oplogEntry(objects: {
+		oplog: $oplog,
+		startDate: $startDate,
+		endDate: $endDate,
+		sourceIp: $sourceIp,
+		destIp: $destIp,
+		tool: $tool,
+		userContext: $userContext,
+		command: $command,
+		description: $description,
+		output: $output,
+		comments: $comments,
+		operatorName: $operatorName,
+		entryIdentifier: $entry_identifier,
+		extraFields: $extraFields
+	}) {
+		returning { id }
+	}
+}`
+
 func init() {
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
@@ -48,6 +73,7 @@ func setDefaults() {
 	viper.SetDefault("email_send_click_template", defaultClickedTemplate)
 	viper.SetDefault("email_submitted_credentials_template", defaultSubmittedCredentailsTemplate)
 	viper.SetDefault("email_default_email_open_template", defaultEmailOpenedTemplate)
+	viper.SetDefault("graphql_default_query", defaultgraphqlTemplate)
 	viper.SetDefault("profiles", []string{"slack"})
 }
 
@@ -85,6 +111,12 @@ func validateConfig() {
 			log.Infof("Using Email sending profile. Will send emails from %s to %s",
 				viper.GetString("email.sender"),
 				viper.GetString("email.recipient"))
+			continue
+		}
+		if profile == "ghostwriter" {
+			ghostwriterConfigs := []string{"ghostwriter.graphql_endpoint", "ghostwriter.api_key"}
+			checkKeysExist(ghostwriterConfigs...)
+			log.Infof("Using Ghostwriter sending profile. Will send messages to %s", viper.GetString("ghostwriter.url"))
 			continue
 		}
 		log.Fatalf("Profile \"%s\" does not exist", profile)

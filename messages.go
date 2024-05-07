@@ -130,6 +130,11 @@ func (w SubmittedDetails) SendEmail() error {
 	return sendEmail("PhishBot - Credentials Submitted", body)
 }
 
+func (w SubmittedDetails) SendGraphql() error {
+	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: "Email: " + w.Email + "\nUsername: " + w.Username + "\nPassword: " + w.Password, Comments: SubmittedData}
+	return sendGraphql(oplog_entry)
+}
+
 type ClickDetails struct {
 	CampaignID uint
 	ID         string
@@ -173,6 +178,11 @@ func (w ClickDetails) SendEmail() error {
 		return err
 	}
 	return sendEmail("PhishBot - Email Clicked", body)
+}
+
+func (w ClickDetails) SendGraphql() error {
+	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: "Email: " + w.Email, Comments: ClickedLink}
+	return sendGraphql(oplog_entry)
 }
 
 func getEmailBody(templateValue string, obj interface{}) (string, error) {
@@ -230,4 +240,9 @@ func (w OpenedDetails) SendEmail() error {
 		return err
 	}
 	return sendEmail("PhishBot - Email Opened", body)
+}
+
+func (w OpenedDetails) SendGraphql() error {
+	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: "Email: " + w.Email, Comments: EmailOpened}
+	return sendGraphql(oplog_entry)
 }

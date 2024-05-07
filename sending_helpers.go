@@ -1,12 +1,31 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/smtp"
 
 	"github.com/ashwanthkumar/slack-go-webhook"
+	"github.com/machinebox/graphql"
 	"github.com/spf13/viper"
 )
+
+type ghostwriter_oplog_entry struct {
+	Oplog           int
+	StartDate       string
+	EndDate         string
+	SourceIp        string
+	DestIp          string
+	Tool            string
+	UserContext     string
+	Command         string
+	Description     string
+	Output          string
+	Comments        string
+	OperatorName    string
+	EntryIdentifier string
+	ExtraFields     string
+}
 
 func sendSlackAttachment(attachment slack.Attachment) error {
 	payload := slack.Payload{
@@ -34,5 +53,29 @@ func sendEmail(subject, body string) error {
 	if err := smtp.SendMail(hostAddr, plainAuth, from, []string{to}, []byte(msg)); err != nil {
 		return err
 	}
+	return nil
+}
+
+func sendGraphql(data ghostwriter_oplog_entry) error {
+	url := viper.GetString("ghostwriter.url")
+	query := viper.GetString("graphql_default_query")
+	oplog_id := viper.GetInt("ghostwriter.oplog_id")
+	client := graphql.NewClient(url)
+
+	req := graphql.NewRequest(query)
+	req.Var("oplog", oplog_id)
+	req.Var("sourceIp", data.SourceIp)
+	req.Var("tool", "gophish")
+	req.Var("userContext", data.UserContext)
+	req.Var("description", data.Description)
+	req.Var("output", data.Output)
+	req.Var("comments", data.Comments)
+
+	ctx := context.Background()
+	var respData map[string]interface{}
+	if err := client.Run(ctx, req, &respData); err != nil {
+		return err
+	}
+
 	return nil
 }
