@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/url"
 	"strings"
+	"strconv"
 
 	"github.com/ashwanthkumar/slack-go-webhook"
 	log "github.com/sirupsen/logrus"
@@ -134,11 +135,15 @@ func (w SubmittedDetails) SendEmail() error {
 func (w SubmittedDetails) SendGraphql() error {
 	var output string
 	if !viper.GetBool("ghostwriter.disable_credentials") {
-		output = "Email: " + w.Email + "\nUsername: " + w.Username + "\nPassword: " + w.Password
-	} else {
-		output = "Email: " + w.Email
+		output = "\nUsername: " + w.Username + "\nPassword: " + w.Password
 	}
-	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: output, Comments: SubmittedData}
+	oplog_entry := ghostwriter_oplog_entry{
+		SourceIp: w.Address,
+		UserContext: w.Email,
+		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
+		Output: output,
+		Comments: SubmittedData
+	}
 	return sendGraphql(oplog_entry)
 }
 
@@ -188,7 +193,13 @@ func (w ClickDetails) SendEmail() error {
 }
 
 func (w ClickDetails) SendGraphql() error {
-	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: "Email: " + w.Email, Comments: ClickedLink}
+	oplog_entry := ghostwriter_oplog_entry{
+		SourceIp: w.Address,
+		UserContext: w.Email,
+		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
+		Output: "UserAgent: " + w.UserAgent,
+		Comments: ClickedLink
+	}
 	return sendGraphql(oplog_entry)
 }
 
@@ -250,6 +261,12 @@ func (w OpenedDetails) SendEmail() error {
 }
 
 func (w OpenedDetails) SendGraphql() error {
-	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: "Email: " + w.Email, Comments: EmailOpened}
+	oplog_entry := ghostwriter_oplog_entry{
+		SourceIp: w.Address,
+		UserContext: w.Email,
+		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
+		Output: "UserAgent: " + w.UserAgent,
+		Comments: EmailOpened
+	}
 	return sendGraphql(oplog_entry)
 }
