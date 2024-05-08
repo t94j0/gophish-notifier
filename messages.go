@@ -135,6 +135,8 @@ func (w SubmittedDetails) SendGraphql() error {
 	var output string
 	if !viper.GetBool("ghostwriter.disable_credentials") {
 		output = "Email: " + w.Email + "\nUsername: " + w.Username + "\nPassword: " + w.Password
+	} else {
+		output = "Email: " + w.Email
 	}
 	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: output, Comments: SubmittedData}
 	return sendGraphql(oplog_entry)
@@ -186,11 +188,7 @@ func (w ClickDetails) SendEmail() error {
 }
 
 func (w ClickDetails) SendGraphql() error {
-	var output string
-	if !viper.GetBool("ghostwriter.disable_credentials") {
-		output = "Email: " + w.Email
-	}
-	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: output, Comments: ClickedLink}
+	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: "Email: " + w.Email, Comments: ClickedLink}
 	return sendGraphql(oplog_entry)
 }
 
@@ -252,10 +250,6 @@ func (w OpenedDetails) SendEmail() error {
 }
 
 func (w OpenedDetails) SendGraphql() error {
-	var output string
-	if !viper.GetBool("ghostwriter.disable_credentials") {
-		output = "Email: " + w.Email
-	}
-	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: output, Comments: EmailOpened}
+	oplog_entry := ghostwriter_oplog_entry{SourceIp: w.Address, UserContext: w.UserAgent, Description: "User ID: " + string(w.ID) + "\nCampaign ID: " + string(w.CampaignID), Output: "Email: " + w.Email, Comments: EmailOpened}
 	return sendGraphql(oplog_entry)
 }
