@@ -58,11 +58,13 @@ func sendEmail(subject, body string) error {
 
 func sendGraphql(data ghostwriter_oplog_entry) error {
 	url := viper.GetString("ghostwriter.graphql_endpoint")
+	api_key := viper.GetString("ghostwriter.api_key")
 	query := viper.GetString("graphql_default_query")
 	oplog_id := viper.GetInt("ghostwriter.oplog_id")
 	client := graphql.NewClient(url)
 
 	req := graphql.NewRequest(query)
+	req.Header.Set("Authorization", "Bearer "+api_key)
 	req.Var("oplog", oplog_id)
 	req.Var("sourceIp", data.SourceIp)
 	req.Var("tool", "gophish")

@@ -22,23 +22,13 @@ Email Address - {{ .Email }}
 IP Address - {{ .Address }}
 User Agent - {{ .UserAgent }}`
 
-var defaultgraphqlTemplate = `mutation InsertGophishLog (
-	$oplog: bigint!, $sourceIp: String, $tool: String,
-	$userContext: String, $description: String, $output: String,
-	$comments: String
-) {
-	insert_oplogEntry(objects: {
-		oplog: $oplog,
-		sourceIp: $sourceIp,
-		tool: $tool,
-		userContext: $userContext,
-		description: $description,
-		output: $output,
-		comments: $comments
-	}) {
-		returning { id }
+var defaultgraphqlTemplate = `mutation InsertGophishLog ($oplog: bigint!, $sourceIp: String, $tool: String,	$userContext: String, $description: String, $output: String, $comments: String) {
+	insert_oplogEntry(objects: {oplog: $oplog, sourceIp: $sourceIp, tool: $tool, userContext: $userContext, description: $description, comments: $comments, output: $output}) {
+	  returning {
+		id
+	  }
 	}
-}`
+  }`
 
 func init() {
 	viper.SetConfigName("config")
@@ -107,7 +97,7 @@ func validateConfig() {
 			continue
 		}
 		if profile == "ghostwriter" {
-			ghostwriterConfigs := []string{"ghostwriter.graphql_endpoint", "ghostwriter.api_key"}
+			ghostwriterConfigs := []string{"ghostwriter.graphql_endpoint", "ghostwriter.api_key", "ghostwriter.oplog_id"}
 			checkKeysExist(ghostwriterConfigs...)
 			log.Infof("Using Ghostwriter sending profile. Will send messages to %s", viper.GetString("ghostwriter.graphql_endpoint"))
 			continue
