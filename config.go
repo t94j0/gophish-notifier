@@ -22,8 +22,8 @@ Email Address - {{ .Email }}
 IP Address - {{ .Address }}
 User Agent - {{ .UserAgent }}`
 
-var defaultgraphqlTemplate = `mutation InsertGophishLog ($oplog: bigint!, $sourceIp: String, $tool: String,	$userContext: String, $description: String, $output: String, $comments: String) {
-	insert_oplogEntry(objects: {oplog: $oplog, sourceIp: $sourceIp, tool: $tool, userContext: $userContext, description: $description, comments: $comments, output: $output}) {
+var defaultgraphqlTemplate = `mutation InsertGophishLog ($oplog: bigint!, $sourceIp: String, $tool: String,	$userContext: String, $description: String, $output: String, $comments: String, $extraFields: jsonb!) {
+	insert_oplogEntry(objects: {oplog: $oplog, sourceIp: $sourceIp, tool: $tool, userContext: $userContext, description: $description, comments: $comments, output: $output, extraFields: $extraFields}) {
 	  returning {
 		id
 	  }

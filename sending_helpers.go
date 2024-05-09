@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
+	"net/http"
 	"net/smtp"
 
 	"github.com/ashwanthkumar/slack-go-webhook"
@@ -58,20 +60,32 @@ func sendEmail(subject, body string) error {
 
 func sendGraphql(data ghostwriterOplogEntry) error {
 	url := viper.GetString("ghostwriter.graphql_endpoint")
-	api_key := viper.GetString("ghostwriter.api_key")
+	apiKey := viper.GetString("ghostwriter.api_key")
+	ignoreSelfSigned := viper.GetBool("ghostwriter.ignore_self_signed_certificate")
 	query := viper.GetString("graphql_default_query")
-	oplog_id := viper.GetInt("ghostwriter.oplog_id")
-	client := graphql.NewClient(url)
+	oplogId := viper.GetInt("ghostwriter.oplog_id")
+
+	var client *graphql.Client
+	if ignoreSelfSigned {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		httpClient := &http.Client{Transport: tr}
+		client = graphql.NewClient(url, graphql.WithHTTPClient(httpClient))
+	} else {
+		client = graphql.NewClient(url)
+	}
 
 	req := graphql.NewRequest(query)
-	req.Header.Set("Authorization", "Bearer "+api_key)
-	req.Var("oplog", oplog_id)
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	req.Var("oplog", oplogId)
 	req.Var("sourceIp", data.SourceIp)
 	req.Var("tool", "gophish")
 	req.Var("userContext", data.UserContext)
 	req.Var("description", data.Description)
 	req.Var("output", data.Output)
 	req.Var("comments", data.Comments)
+	req.Var("extraFields", "")
 
 	ctx := context.Background()
 	var respData map[string]interface{}
