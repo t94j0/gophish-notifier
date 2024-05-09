@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/ashwanthkumar/slack-go-webhook"
@@ -21,6 +22,7 @@ var (
 type Sender interface {
 	SendSlack() error
 	SendEmail() error
+	SendGraphql() error
 }
 
 func senderDispatch(status string, webhookResponse WebhookResponse, response []byte) (Sender, error) {
@@ -130,6 +132,21 @@ func (w SubmittedDetails) SendEmail() error {
 	return sendEmail("PhishBot - Credentials Submitted", body)
 }
 
+func (w SubmittedDetails) SendGraphql() error {
+	var output string
+	if !viper.GetBool("ghostwriter.disable_credentials") {
+		output = "\nUsername: " + w.Username + "\nPassword: " + w.Password
+	}
+	oplog_entry := ghostwriterOplogEntry{
+		SourceIp:    w.Address,
+		UserContext: w.Email,
+		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
+		Output:      output,
+		Comments:    SubmittedData,
+	}
+	return sendGraphql(oplog_entry)
+}
+
 type ClickDetails struct {
 	CampaignID uint
 	ID         string
@@ -173,6 +190,17 @@ func (w ClickDetails) SendEmail() error {
 		return err
 	}
 	return sendEmail("PhishBot - Email Clicked", body)
+}
+
+func (w ClickDetails) SendGraphql() error {
+	oplog_entry := ghostwriterOplogEntry{
+		SourceIp:    w.Address,
+		UserContext: w.Email,
+		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
+		Output:      "UserAgent: " + w.UserAgent,
+		Comments:    ClickedLink,
+	}
+	return sendGraphql(oplog_entry)
 }
 
 func getEmailBody(templateValue string, obj interface{}) (string, error) {
@@ -230,4 +258,15 @@ func (w OpenedDetails) SendEmail() error {
 		return err
 	}
 	return sendEmail("PhishBot - Email Opened", body)
+}
+
+func (w OpenedDetails) SendGraphql() error {
+	oplog_entry := ghostwriterOplogEntry{
+		SourceIp:    w.Address,
+		UserContext: w.Email,
+		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
+		Output:      "UserAgent: " + w.UserAgent,
+		Comments:    EmailOpened,
+	}
+	return sendGraphql(oplog_entry)
 }

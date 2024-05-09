@@ -68,6 +68,19 @@ email:
   # Email host address
   host_addr: smtp.gmail.com:587
 
+# Ghostwriter Profile
+ghostwriter:
+  # Ghostwriter graphql endpoint
+  graphql_endpoint: 'https://ghostwriter/v1/graphql'
+  # Ghostwriter API key
+  api_key: 'deadbeef'
+  # Oplog ID
+  oplog_id: 1
+  # (Optional) Disable email, username, and credentials from being sent to ghostwriter
+  disable_credentials: true
+  # Ignore SSL Self Signed error
+  ignore_self_signed_certificate: true
+
 # You can also supply an email template for each notification
 email_submitted_credentials_template: |
   Someone submitted credentials!
