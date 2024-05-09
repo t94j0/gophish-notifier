@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type ghostwriter_oplog_entry struct {
+type ghostwriterOplogEntry struct {
 	Oplog           int
 	StartDate       string
 	EndDate         string
@@ -56,7 +56,7 @@ func sendEmail(subject, body string) error {
 	return nil
 }
 
-func sendGraphql(data ghostwriter_oplog_entry) error {
+func sendGraphql(data ghostwriterOplogEntry) error {
 	url := viper.GetString("ghostwriter.graphql_endpoint")
 	api_key := viper.GetString("ghostwriter.api_key")
 	query := viper.GetString("graphql_default_query")

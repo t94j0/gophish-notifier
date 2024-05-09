@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"html/template"
 	"net/url"
-	"strings"
 	"strconv"
+	"strings"
 
 	"github.com/ashwanthkumar/slack-go-webhook"
 	log "github.com/sirupsen/logrus"
@@ -137,12 +137,12 @@ func (w SubmittedDetails) SendGraphql() error {
 	if !viper.GetBool("ghostwriter.disable_credentials") {
 		output = "\nUsername: " + w.Username + "\nPassword: " + w.Password
 	}
-	oplog_entry := ghostwriter_oplog_entry{
-		SourceIp: w.Address,
+	oplog_entry := ghostwriterOplogEntry{
+		SourceIp:    w.Address,
 		UserContext: w.Email,
 		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
-		Output: output,
-		Comments: SubmittedData
+		Output:      output,
+		Comments:    SubmittedData,
 	}
 	return sendGraphql(oplog_entry)
 }
@@ -193,12 +193,12 @@ func (w ClickDetails) SendEmail() error {
 }
 
 func (w ClickDetails) SendGraphql() error {
-	oplog_entry := ghostwriter_oplog_entry{
-		SourceIp: w.Address,
+	oplog_entry := ghostwriterOplogEntry{
+		SourceIp:    w.Address,
 		UserContext: w.Email,
 		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
-		Output: "UserAgent: " + w.UserAgent,
-		Comments: ClickedLink
+		Output:      "UserAgent: " + w.UserAgent,
+		Comments:    ClickedLink,
 	}
 	return sendGraphql(oplog_entry)
 }
@@ -261,12 +261,12 @@ func (w OpenedDetails) SendEmail() error {
 }
 
 func (w OpenedDetails) SendGraphql() error {
-	oplog_entry := ghostwriter_oplog_entry{
-		SourceIp: w.Address,
+	oplog_entry := ghostwriterOplogEntry{
+		SourceIp:    w.Address,
 		UserContext: w.Email,
 		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
-		Output: "UserAgent: " + w.UserAgent,
-		Comments: EmailOpened
+		Output:      "UserAgent: " + w.UserAgent,
+		Comments:    EmailOpened,
 	}
 	return sendGraphql(oplog_entry)
 }
