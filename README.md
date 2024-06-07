@@ -41,6 +41,14 @@ base_url: https://10.0.0.15:3333
 profiles:
   - slack
   - email
+# Enables notifications for each of the webhook events https://docs.getgophish.com/user-guide/documentation/webhooks. Options are `email_error`, `email_sent`, `email_opened`, `clicked_link`, `submitted_data` and `email_reported`.
+events:
+  - email_error
+  - email_sent
+  - email_opened
+  - clicked_link
+  - submitted_data
+  - email_reported
 
 # Slack Profile
 slack:

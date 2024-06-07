@@ -58,6 +58,7 @@ func setDefaults() {
 	viper.SetDefault("email_default_email_open_template", defaultEmailOpenedTemplate)
 	viper.SetDefault("graphql_default_query", defaultgraphqlTemplate)
 	viper.SetDefault("profiles", []string{"slack"})
+	viper.SetDefault("events", []string{"email_opened", "clicked_link", "submitted_data"})
 }
 
 func setLogLevel() {
