@@ -78,7 +78,7 @@ func validateConfig() {
 		}
 	}
 
-	globalConfigs := []string{"secret", "profiles"}
+	globalConfigs := []string{"secret", "profiles", "events"}
 	checkKeysExist(globalConfigs...)
 
 	profiles := viper.GetStringSlice("profiles")
