@@ -62,7 +62,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sender, err := senderDispatch(response.Message, response, []byte(response.Details))
+	var details []byte
+	if response.Details != nil {
+		details = []byte(*response.Details)
+	}
+
+	sender, err := senderDispatch(response.Message, response, details)
 	if err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

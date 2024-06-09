@@ -40,10 +40,10 @@ func contains(slice []string, str string) bool {
 func senderDispatch(status string, webhookResponse WebhookResponse, response []byte) (Sender, error) {
 	enabled_events := viper.GetStringSlice("events")
 	if status == EmailError && contains(enabled_events, "email_error") {
-		return NewErrorDetails(webhookResponse, response)
+		return NewErrorDetails(webhookResponse)
 	}
 	if status == EmailSent && contains(enabled_events, "email_sent") {
-		return NewSentDetails(webhookResponse, response)
+		return NewSentDetails(webhookResponse)
 	}
 	if status == EmailOpened && contains(enabled_events, "email_opened") {
 		return NewOpenedDetails(webhookResponse, response)
@@ -55,7 +55,7 @@ func senderDispatch(status string, webhookResponse WebhookResponse, response []b
 		return NewSubmittedDetails(webhookResponse, response)
 	}
 	if status == EmailReported && contains(enabled_events, "email_reported") {
-		return NewReportedDetails(webhookResponse, response)
+		return NewReportedDetails(webhookResponse)
 	}
 	log.Warn("unknown status:", status)
 	return nil, nil
@@ -64,11 +64,11 @@ func senderDispatch(status string, webhookResponse WebhookResponse, response []b
 // More information about events can be found here:
 // https://github.com/gophish/gophish/blob/db63ee978dcd678caee0db71e5e1b91f9f293880/models/result.go#L50
 type WebhookResponse struct {
-	Success    bool   `json:"success"`
-	CampaignID uint   `json:"campaign_id"`
-	Message    string `json:"message"`
-	Details    string `json:"details"`
-	Email      string `json:"email"`
+	Success    bool    `json:"success"`
+	CampaignID uint    `json:"campaign_id"`
+	Message    string  `json:"message"`
+	Details    *string `json:"details"`
+	Email      string  `json:"email"`
 }
 
 func NewWebhookResponse(body []byte) (WebhookResponse, error) {
@@ -105,23 +105,13 @@ func (e EventDetails) Address() string {
 
 type ErrorDetails struct {
 	CampaignID uint
-	ID         string
 	Email      string
-	Address    string
-	UserAgent  string
 }
 
-func NewErrorDetails(response WebhookResponse, detailsRaw []byte) (ErrorDetails, error) {
-	details, err := NewEventDetails(detailsRaw)
-	if err != nil {
-		return ErrorDetails{}, err
-	}
+func NewErrorDetails(response WebhookResponse) (ErrorDetails, error) {
 	errorDetails := ErrorDetails{
 		CampaignID: response.CampaignID,
-		ID:         details.ID(),
-		Address:    details.Address(),
 		Email:      response.Email,
-		UserAgent:  details.UserAgent(),
 	}
 	return errorDetails, nil
 }
@@ -129,9 +119,6 @@ func NewErrorDetails(response WebhookResponse, detailsRaw []byte) (ErrorDetails,
 func (w ErrorDetails) SendSlack() error {
 	orange := "#ffa500"
 	attachment := slack.Attachment{Title: &EmailError, Color: &orange}
-	attachment.AddField(slack.Field{Title: "ID", Value: w.ID})
-	attachment.AddField(slack.Field{Title: "Address", Value: slackFormatIP(w.Address)})
-	attachment.AddField(slack.Field{Title: "User Agent", Value: w.UserAgent})
 	if !viper.GetBool("slack.disable_credentials") {
 		attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
 	}
@@ -150,10 +137,8 @@ func (w ErrorDetails) SendEmail() error {
 
 func (w ErrorDetails) SendGraphql() error {
 	oplog_entry := ghostwriterOplogEntry{
-		SourceIp:    w.Address,
 		UserContext: w.Email,
-		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
-		Output:      "UserAgent: " + w.UserAgent,
+		Description: "Campaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
 		Comments:    EmailError,
 	}
 	return sendGraphql(oplog_entry)
@@ -161,23 +146,13 @@ func (w ErrorDetails) SendGraphql() error {
 
 type SentDetails struct {
 	CampaignID uint
-	ID         string
 	Email      string
-	Address    string
-	UserAgent  string
 }
 
-func NewSentDetails(response WebhookResponse, detailsRaw []byte) (SentDetails, error) {
-	details, err := NewEventDetails(detailsRaw)
-	if err != nil {
-		return SentDetails{}, err
-	}
+func NewSentDetails(response WebhookResponse) (SentDetails, error) {
 	sentDetails := SentDetails{
 		CampaignID: response.CampaignID,
-		ID:         details.ID(),
-		Address:    details.Address(),
 		Email:      response.Email,
-		UserAgent:  details.UserAgent(),
 	}
 	return sentDetails, nil
 }
@@ -185,9 +160,6 @@ func NewSentDetails(response WebhookResponse, detailsRaw []byte) (SentDetails, e
 func (w SentDetails) SendSlack() error {
 	orange := "#ffa500"
 	attachment := slack.Attachment{Title: &EmailSent, Color: &orange}
-	attachment.AddField(slack.Field{Title: "ID", Value: w.ID})
-	attachment.AddField(slack.Field{Title: "Address", Value: slackFormatIP(w.Address)})
-	attachment.AddField(slack.Field{Title: "User Agent", Value: w.UserAgent})
 	if !viper.GetBool("slack.disable_credentials") {
 		attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
 	}
@@ -206,10 +178,8 @@ func (w SentDetails) SendEmail() error {
 
 func (w SentDetails) SendGraphql() error {
 	oplog_entry := ghostwriterOplogEntry{
-		SourceIp:    w.Address,
 		UserContext: w.Email,
-		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
-		Output:      "UserAgent: " + w.UserAgent,
+		Description: "Campaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
 		Comments:    EmailSent,
 	}
 	return sendGraphql(oplog_entry)
@@ -407,23 +377,13 @@ func (w SubmittedDetails) SendGraphql() error {
 
 type ReportedDetails struct {
 	CampaignID uint
-	ID         string
 	Email      string
-	Address    string
-	UserAgent  string
 }
 
-func NewReportedDetails(response WebhookResponse, detailsRaw []byte) (ReportedDetails, error) {
-	details, err := NewEventDetails(detailsRaw)
-	if err != nil {
-		return ReportedDetails{}, err
-	}
+func NewReportedDetails(response WebhookResponse) (ReportedDetails, error) {
 	reportedDetails := ReportedDetails{
 		CampaignID: response.CampaignID,
-		ID:         details.ID(),
-		Address:    details.Address(),
 		Email:      response.Email,
-		UserAgent:  details.UserAgent(),
 	}
 	return reportedDetails, nil
 }
@@ -431,9 +391,6 @@ func NewReportedDetails(response WebhookResponse, detailsRaw []byte) (ReportedDe
 func (w ReportedDetails) SendSlack() error {
 	orange := "#ffa500"
 	attachment := slack.Attachment{Title: &EmailReported, Color: &orange}
-	attachment.AddField(slack.Field{Title: "ID", Value: w.ID})
-	attachment.AddField(slack.Field{Title: "Address", Value: slackFormatIP(w.Address)})
-	attachment.AddField(slack.Field{Title: "User Agent", Value: w.UserAgent})
 	if !viper.GetBool("slack.disable_credentials") {
 		attachment.AddField(slack.Field{Title: "Email", Value: w.Email})
 	}
@@ -452,10 +409,8 @@ func (w ReportedDetails) SendEmail() error {
 
 func (w ReportedDetails) SendGraphql() error {
 	oplog_entry := ghostwriterOplogEntry{
-		SourceIp:    w.Address,
 		UserContext: w.Email,
-		Description: "User ID: " + w.ID + "\nCampaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
-		Output:      "UserAgent: " + w.UserAgent,
+		Description: "Campaign ID: " + strconv.FormatUint(uint64(w.CampaignID), 10),
 		Comments:    EmailReported,
 	}
 	return sendGraphql(oplog_entry)
