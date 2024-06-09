@@ -79,12 +79,22 @@ func sendGraphql(data ghostwriterOplogEntry) error {
 	req := graphql.NewRequest(query)
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 	req.Var("oplog", oplogId)
-	req.Var("sourceIp", data.SourceIp)
+	if data.SourceIp != "" {
+		req.Var("sourceIp", data.SourceIp)
+	}
 	req.Var("tool", "gophish")
-	req.Var("userContext", data.UserContext)
-	req.Var("description", data.Description)
-	req.Var("output", data.Output)
-	req.Var("comments", data.Comments)
+	if data.UserContext != "" {
+		req.Var("userContext", data.UserContext)
+	}
+	if data.Description != "" {
+		req.Var("description", data.Description)
+	}
+	if data.Output != "" {
+		req.Var("output", data.Output)
+	}
+	if data.Comments != "" {
+		req.Var("comments", data.Comments)
+	}
 	req.Var("extraFields", "")
 
 	ctx := context.Background()
