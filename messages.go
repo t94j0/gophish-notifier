@@ -127,7 +127,7 @@ func (w ErrorDetails) SendSlack() error {
 }
 
 func (w ErrorDetails) SendEmail() error {
-	templateString := viper.GetString("email_send_click_template")
+	templateString := viper.GetString("email_error_sending_template")
 	body, err := getEmailBody(templateString, w)
 	if err != nil {
 		return err
@@ -168,7 +168,7 @@ func (w SentDetails) SendSlack() error {
 }
 
 func (w SentDetails) SendEmail() error {
-	templateString := viper.GetString("email_send_click_template")
+	templateString := viper.GetString("email_sent_template")
 	body, err := getEmailBody(templateString, w)
 	if err != nil {
 		return err
@@ -399,7 +399,7 @@ func (w ReportedDetails) SendSlack() error {
 }
 
 func (w ReportedDetails) SendEmail() error {
-	templateString := viper.GetString("email_send_click_template")
+	templateString := viper.GetString("email_reported_template")
 	body, err := getEmailBody(templateString, w)
 	if err != nil {
 		return err
