@@ -5,6 +5,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+var defaultErrorTemplate = `Email ID - {{ .ID }}`
+
+var defaultSentTemplate = `Email ID - {{ .ID }}`
+
 var defaultClickedTemplate = `Email ID - {{ .ID }}
 Email Address -  {{ .Email }}
 IP Address - {{ .Address }}
@@ -21,6 +25,8 @@ var defaultEmailOpenedTemplate = `Email ID - {{ .ID }}
 Email Address - {{ .Email }}
 IP Address - {{ .Address }}
 User Agent - {{ .UserAgent }}`
+
+var defaultReportedTemplate = `Email ID - {{ .ID }}`
 
 var defaultgraphqlTemplate = `mutation InsertGophishLog ($oplog: bigint!, $sourceIp: String, $tool: String,	$userContext: String, $description: String, $output: String, $comments: String, $extraFields: jsonb!) {
 	insert_oplogEntry(objects: {oplog: $oplog, sourceIp: $sourceIp, tool: $tool, userContext: $userContext, description: $description, comments: $comments, output: $output, extraFields: $extraFields}) {
@@ -53,11 +59,15 @@ func setDefaults() {
 	viper.SetDefault("ip_query_base", "https://whatismyipaddress.com/ip/")
 	viper.SetDefault("listen_port", "9999")
 	viper.SetDefault("webhook_path", "/webhook")
+	viper.SetDefault("email_error_sending_template", defaultErrorTemplate)
+	viper.SetDefault("email_sent_template", defaultSentTemplate)
 	viper.SetDefault("email_send_click_template", defaultClickedTemplate)
 	viper.SetDefault("email_submitted_credentials_template", defaultSubmittedCredentailsTemplate)
 	viper.SetDefault("email_default_email_open_template", defaultEmailOpenedTemplate)
+	viper.SetDefault("email_reported_template", defaultReportedTemplate)
 	viper.SetDefault("graphql_default_query", defaultgraphqlTemplate)
 	viper.SetDefault("profiles", []string{"slack"})
+	viper.SetDefault("events", []string{"email_opened", "clicked_link", "submitted_data"})
 }
 
 func setLogLevel() {
@@ -77,7 +87,7 @@ func validateConfig() {
 		}
 	}
 
-	globalConfigs := []string{"secret", "profiles"}
+	globalConfigs := []string{"secret", "profiles", "events"}
 	checkKeysExist(globalConfigs...)
 
 	profiles := viper.GetStringSlice("profiles")
